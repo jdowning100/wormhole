@@ -5,13 +5,35 @@
     "@openzeppelin/contracts": "^4.3.1"
   },
   "scripts": {
-    "build:forge": "forge build",
-    "build": "npm run build:forge && typechain --target=ethers-v5 --out-dir=./ethers-contracts \"build-forge/!(test).sol/*.json\""
+    "compile": "npx hardhat compile",
+    "deploy": "npx hardhat run scripts/deploy.js"
   },
   "license": "Apache-2.0",
   "dependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
+    "@nomicfoundation/hardhat-ethers": "^3.0.0",
+    "@nomicfoundation/hardhat-ignition": "^0.15.12",
+    "@nomicfoundation/hardhat-ignition-ethers": "^0.15.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.0",
+    "@nomicfoundation/ignition-core": "^0.15.12",
+    "@quai/hardhat-deploy-metadata": "^1.0.8",
+    "@quai/quais-upgrades": "^3.8.14",
     "@typechain/ethers-v5": "^10.2.0",
-    "typechain": "^8.1.1"
+    "@typechain/ethers-v6": "^0.5.0",
+    "@typechain/hardhat": "^9.0.0",
+    "@types/chai": "^4.2.0",
+    "@types/mocha": ">=9.1.0",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.4.0",
+    "hardhat": "^2.19.5",
+    "hardhat-gas-reporter": "^1.0.8",
+    "quais": "^1.0.0-alpha.49",
+    "solidity-coverage": "^0.8.1",
+    "ts-node": ">=8.0.0",
+    "typechain": "^8.1.1",
+    "typescript": ">=4.5.0"
   },
   "overrides": {
     "elliptic": "^6.6.1"

@@ -8,10 +8,25 @@ to transfer tokens in or change configuration settings.
 The `WrappedAsset` is a ERC-20 token contract that holds metadata about a wormhole asset on ETH. Wormhole assets are all
 wrapped non-ETH assets that are currently held on ETH.
 
+### NOTE: This submodule was updated to use yarn instead of npm and hardhat instead of forge. 
+### In addition, you must use node v22.5.1
+
 ### Building
 
 To build the contracts:
-`make build`
+`npx hardhat compile` or `yarn compile`
+
+
+### Env
+
+There is a sample .env.quai file that you can use. Rename it to .env
+If you use a Web3 keystore for the deployer key, name the file wallet.json and place it in the same folder as this README (./ethereum/wallet.json) and update the password in .env with PASSWORD=
+If you wish to use a private key, you will have to modify deploy.js and the .env to create a wallet from the key like so: `let wallet = new Wallet(getEnv("PRIVATE_KEY"), provider);`
+
+### Deploying using Hardhat
+
+`npx hardhat run scripts/deploy.js` or `yarn deploy`
+
 
 ### Deploying using Forge
 

@@ -179,7 +179,8 @@ contract NFTBridge is NFTBridgeGovernance {
         // deployment code
         bytes memory bytecode = abi.encodePacked(type(BridgeNFT).creationCode, constructorArgs);
 
-        bytes32 salt = keccak256(abi.encodePacked(tokenChain, tokenAddress));
+        bytes32 startingSalt = keccak256(abi.encodePacked(tokenChain, tokenAddress));
+        bytes32 salt = findSaltForAddress(keccak256(type(BridgeNFT).creationCode), startingSalt);
 
         assembly {
             token := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
@@ -190,6 +191,46 @@ contract NFTBridge is NFTBridgeGovernance {
         }
 
         setWrappedAsset(tokenChain, tokenAddress, token);
+    }
+
+    /**
+     * @dev Attempts up to `maxAttempts` increments of `salt` to find one that yields
+     * an address whose first byte is `0x00` and second byte <= `0x7F` (decimal 127).
+     */
+    function findSaltForAddress(
+        bytes32 initCodeHash,
+        bytes32 startingSalt
+    ) internal view returns (bytes32) {
+        bytes32 salt = startingSalt;
+        for (uint256 i = 0; i < 2**256 - 1; i++) {
+            // Calculate the address using the same formula as CREATE2
+            bytes32 hash = keccak256(
+                abi.encodePacked(
+                    bytes1(0xff), // Fixed prefix used in CREATE2
+                    address(this),
+                    salt,
+                    initCodeHash
+                )
+            );
+            address computed = address(uint160(uint256(hash)));
+
+            // Extract the first two bytes from the address
+            // - The first byte is bits [159:152]
+            // - The second byte is bits [151:144]
+            // We do this by shifting right by 152 or 144, then casting to uint8
+            // e.g. >> 152 leaves the 8 high‐order bits in position.
+            if (
+                // first byte == 0x00
+                uint8(uint160(computed) >> 152) == 0x00 &&
+                // second byte <= 127 (0x7F)
+                uint8(uint160(computed) >> 144) <= 0x7F &&
+                computed.code.length == 0
+            ) {
+                return salt;
+            }
+            salt = bytes32(uint256(salt) + 1);
+        }
+        revert("Salt not found");
     }
 
     function verifyBridgeVM(IWormhole.VM memory vm) internal view returns (bool){
