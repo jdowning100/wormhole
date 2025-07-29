@@ -213,6 +213,9 @@ var (
 	monadRPC      *string
 	monadContract *string
 
+	quaiRPC      *string
+	quaiContract *string
+
 	inkRPC      *string
 	inkContract *string
 
@@ -474,6 +477,9 @@ func init() {
 
 	monadRPC = node.RegisterFlagWithValidationOrFail(NodeCmd, "monadRPC", "Monad RPC URL", "ws://eth-devnet:8545", []string{"ws", "wss"})
 	monadContract = NodeCmd.Flags().String("monadContract", "", "Monad contract address")
+
+	quaiRPC = node.RegisterFlagWithValidationOrFail(NodeCmd, "quaiRPC", "Quai RPC URL", "wss://rpc.orchard.quai.network/cyprus1", []string{"ws", "wss"})
+	quaiContract = NodeCmd.Flags().String("quaiContract", "", "Quai contract address")
 
 	seiEvmRPC = node.RegisterFlagWithValidationOrFail(NodeCmd, "seiEvmRPC", "SeiEVM RPC URL", "ws://eth-devnet:8545", []string{"ws", "wss"})
 	seiEvmContract = NodeCmd.Flags().String("seiEvmContract", "", "SeiEVM contract address")
@@ -879,6 +885,7 @@ func runNode(cmd *cobra.Command, args []string) {
 	*inkContract = checkEvmArgs(logger, *inkRPC, *inkContract, vaa.ChainIDInk)
 	*hyperEvmContract = checkEvmArgs(logger, *hyperEvmRPC, *hyperEvmContract, vaa.ChainIDHyperEVM)
 	*monadContract = checkEvmArgs(logger, *monadRPC, *monadContract, vaa.ChainIDMonad)
+	*quaiContract = checkEvmArgs(logger, *quaiRPC, *quaiContract, vaa.ChainIDQuaiTestnet)
 	*seiEvmContract = checkEvmArgs(logger, *seiEvmRPC, *seiEvmContract, vaa.ChainIDSeiEVM)
 	*mezoContract = checkEvmArgs(logger, *mezoRPC, *mezoContract, vaa.ChainIDMezo)
 	*convergeContract = checkEvmArgs(logger, *convergeRPC, *convergeContract, vaa.ChainIDConverge)
@@ -1597,6 +1604,19 @@ func runNode(cmd *cobra.Command, args []string) {
 			Contract:          *monadContract,
 			CcqBackfillCache:  *ccqBackfillCache,
 			TxVerifierEnabled: slices.Contains(txVerifierChains, vaa.ChainIDMonad),
+		}
+
+		watcherConfigs = append(watcherConfigs, wc)
+	}
+
+	if shouldStart(quaiRPC) {
+		wc := &evm.WatcherConfig{
+			NetworkID:         "quai",
+			ChainID:           vaa.ChainIDQuaiTestnet,
+			Rpc:               *quaiRPC,
+			Contract:          *quaiContract,
+			CcqBackfillCache:  *ccqBackfillCache,
+			TxVerifierEnabled: slices.Contains(txVerifierChains, vaa.ChainIDQuaiTestnet),
 		}
 
 		watcherConfigs = append(watcherConfigs, wc)
